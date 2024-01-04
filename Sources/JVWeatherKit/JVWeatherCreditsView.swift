@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  JVWeatherCreditsView.swift
 //  
 //
 //  Created by Jan Verrept on 30/09/2023.

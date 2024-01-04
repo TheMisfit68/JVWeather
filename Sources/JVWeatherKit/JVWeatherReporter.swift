@@ -5,14 +5,10 @@
 //  Created by Jan Verrept on 26/09/2023.
 //  Copyright © 2023 Jan Verrept. All rights reserved.
 //
-
 import Foundation
 import WeatherKit
-import CoreLocation
-import OSLog
-import SwiftUI
-import JVSwiftCore
 import JVLocation
+import JVSwiftCore
 
 /// Reports a number of convenient weatherconditions
 /// Based on WeatherKit
