@@ -14,15 +14,18 @@ let package = Package(
     ],
 	// Dependencies declare other packages that this package depends on.
 	dependencies: [
-		.package(url: "https://github.com/TheMisfit68/JVLocation.git", branch: "master"),
-		.package(url: "https://github.com/TheMisfit68/JVSwiftCore.git", branch: "master"),
+		.package(url: "https://github.com/TheMisfit68/JVLocation.git", branch: "main"),
+		.package(url: "https://github.com/TheMisfit68/JVSwiftCore.git", branch: "main"),
 	],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "JVWeather",
-			dependencies: ["JVLocation","JVSwiftCore"]
+			dependencies: [
+				"JVLocation",
+				"JVSwiftCore"
+			]
 		),
         .testTarget(
             name: "JVWeatherTests",

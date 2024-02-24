@@ -9,10 +9,12 @@ import Foundation
 import SwiftUI
 import WeatherKit
 import OSLog
+import JVSwiftCore
 
 public extension WeatherService{
     
     struct CreditsView: View {
+		let logger = Logger(subsystem: "be.oneclick.JVSwift", category: "WeatherCreditsView")
         
         public init(){} // An automaticly synthesized inititializer would get an access level of internal
         
@@ -37,7 +39,6 @@ public extension WeatherService{
                 do{
                     attribution = try await WeatherService.shared.attribution
                 }catch{
-                    let logger = Logger(subsystem: "be.oneclick.JVSwift", category: "WeatherCreditsView")
                     logger.error("\(error.localizedDescription)")
                 }
             }
