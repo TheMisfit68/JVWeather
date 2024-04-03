@@ -9,15 +9,21 @@ import Foundation
 import WeatherKit
 import JVLocation
 import JVSwiftCore
+import OSLog
 
 /// Reports a number of convenient weatherconditions
-/// Based on WeatherKit
+/// Based on Apple's WeatherKit
 public class WeatherReporter{
-    
-    let mininumPrecipitationLimit:Double
+	let logger = Logger(subsystem: "be.oneclick.JVWeather", category: "WeatherReporter")
+
+	/// Minimum precipitation limit in millimeters
+	let mininumPrecipitationLimit:Double
+	/// Hot temperature limit in degrees Celsius
     let hotTemperatureLimit:Double
+	/// Strong wind limit in kilometers per hour
     let strongWindLimit:Double
     
+	/// Manages the location to retrieve weather information
     var locationManager = LocationManager()
     
     let calendar = Calendar.current
@@ -29,27 +35,39 @@ public class WeatherReporter{
     let updateInterval:TimeInterval
     let timeOutInterval:TimeInterval
     var previousUpdate:Date? = nil
+	
+	/// Check whether weather data needs updating
     var needsUpdating:Bool{
         
         let now = Date()
         
-        if let weatherDate = weather?.currentWeather.date{
-            return ( now >= (weatherDate+updateInterval) )
-        }else if let previousUpdate = self.previousUpdate {
+		if let weatherDate = weather?.currentWeather.date, ( now >= (weatherDate+updateInterval) ){
+			// Time to refresh the weather data
+			self.previousUpdate = now
+            return true
+        }else if let previousUpdate = self.previousUpdate, ( now >= (previousUpdate+timeOutInterval) ) {
+			// It took more than the timeout interval to retrieve the first weather data
             self.previousUpdate = now
-            return ( now >= (previousUpdate+timeOutInterval) )
+            return true
         }else{
+			// Retrieve the very first weather data
             self.previousUpdate = now
             return true
         }
         
     }
-    
+	/// Weather service instance for retrieving weather data from Apple's WeatherKit
     let weatherService = WeatherService()
+	
+	/// Tuple containing current, daily, and hourly weather data
     var weather:(currentWeather:CurrentWeather, DayWeather:Forecast<DayWeather>, HourWeather:Forecast<HourWeather>)?
     
-    
-    public init(daysInPast:Int = 2, daysInFuture:Int = 3, whitUpdateInterval updateInterval: TimeInterval = TimeInterval(3600)){
+	/// Initializes a new WeatherReporter instance
+	/// - Parameters:
+	///   - daysInPast: Number of past days to consider for weather forecast
+	///   - daysInFuture: Number of future days to consider for weather forecast
+	///   - updateInterval: Interval for updating weather data (in seconds)
+    public init(daysInPast:Int = 3, daysInFuture:Int = 1, whitUpdateInterval updateInterval: TimeInterval = TimeInterval(3600)){
         
         self.mininumPrecipitationLimit = 10.0   // Unit for my current location = mm
         self.hotTemperatureLimit = 25.0         // Unit for my current location = °C
@@ -66,7 +84,7 @@ public class WeatherReporter{
         self.timeOutInterval = TimeInterval(10)
     }
     
-    
+	/// Indicates whether the weather was dry in the past
     public var wasDry:Bool{
         guard weather != nil else {return false}
         guard weather!.DayWeather.forecast.indices.contains(pastRange.lowerBound)
@@ -78,6 +96,7 @@ public class WeatherReporter{
         })
     }
     
+	/// Indicates whether the weather is dry today
     public var isDry:Bool{
         guard weather != nil else {return false}
         guard weather!.DayWeather.forecast.indices.contains(todayRange.lowerBound)
@@ -90,6 +109,7 @@ public class WeatherReporter{
         
     }
     
+	/// Indicates whether the weather will be dry in the future
     public var willBeDry:Bool{
         guard weather != nil else {return false}
         guard weather!.DayWeather.forecast.indices.contains(futureRange.lowerBound)
@@ -101,6 +121,7 @@ public class WeatherReporter{
         })
     }
     
+	/// Indicates whether the weather is windy
     public var isWindy:Bool{
         guard weather != nil else {return false}
         return (weather!.currentWeather.wind.speed.value >= strongWindLimit)
@@ -118,9 +139,12 @@ public class WeatherReporter{
                                                         including: .current,
                                                         .daily(startDate: startDate, endDate: endDate),
                                                         .hourly(startDate: startDate, endDate: endDate)
+														
+														
             )
-            
+			
         }
+		
     }
     
     
